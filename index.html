@@ -35,22 +35,28 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: white /* Center content horizontally */
+            color: white; 
+            z-index: 100;/* Center content horizontally */
             
         }
-        /* Optional: Improve the scrollbar appearance */
+        /* Improve the scrollbar appearance */
         #panel::-webkit-scrollbar {
-            width: 10px;
+            width: 20px;
         }
 
         
+        #panel::-webkit-scrollbar-track {
+            background: #f0f0f0; /* Light background for the scrollbar track */
+        }
+
         #panel::-webkit-scrollbar-thumb {
-            background: #888888fb;
+            background-color: #17335C; /* Darker color for the scrollbar thumb */
             border-radius: 10px;
+            border: 3px solid #f0f0f0; /* Add border for better visibility */
         }
 
         #panel::-webkit-scrollbar-thumb:hover {
-            background: #555;
+            background-color: #1A86C8; /* Change color on hover */
         }
 
         /* Media query for tablets */
@@ -60,7 +66,7 @@
                 position: fixed; /* Fixed position to stick atâthe bottom */
                 bottom: 0; /* Align to the bottom */
                 left: 0; 
-                max-height: 50vh;/* Align to the left */
+                max-height: 40vh;/* Align to the left */
                 overflow-y: auto; /* Override right positioning for desktop */
                 padding: 10px; /* Adjust padding as needed for smaller screens */
             }
@@ -73,7 +79,7 @@
                 position: fixed; /* Fixed position to stick atâthe bottom */
                 bottom: 0; /* Align to the bottom */
                 left: 0; /* Align to the left */
-                max-height: 70vh; 
+                max-height: 40vh; 
                 overflow-y: auto;/* Override right positioning for desktop */
                 padding: 5px; /* Less padding for very small screens */
             }
@@ -96,7 +102,7 @@
             background-image: url('marker.gif'); /* Reference the local image */
             background-size: cover;
             cursor: pointer;
-            z-index: 1500;
+            z-index: 90;
         }
 
         #searchHints {
@@ -134,7 +140,7 @@
             width: auto; /* Adjust as needed */
             height: 150px; /* Adjust as needed */
             animation: walk 10s linear infinite;
-            z-index: 1000;
+            z-index: 500;
         }
 
         #snowflakeContainer {
@@ -168,7 +174,7 @@
             left: 0;
             width: 100%;
             text-align: center; /* Center the trees */
-            z-index: 800; /* Make sure it's above most other elements */
+            z-index: 499; /* Make sure it's above most other elements */
         }
 
         .decorative-tree {
@@ -207,13 +213,17 @@
         }
 
         a {
-    color: #ff4d35; /* Example color; adjust as needed */
-    text-decoration: none; /* Removes the underline */
-}
+            color: #ff4d35; /* Example color; adjust as needed */
+            text-decoration: none; /* Removes the underline */
+        }
 
-a:hover {
-    text-decoration: underline; /* Underline on hover for better user experience */
-}
+        a:hover {
+            text-decoration: underline; /* Underline on hover for better user experience */
+        }
+
+        #panel p:last-child {
+            padding-bottom: 70px;
+        }
 
     </style>
 </head>
@@ -223,14 +233,14 @@ a:hover {
     <div id="panel">
         
         <!-- Descriptive text before the toggle buttons -->
+        <h2 id="markerTitle">Top târguri de Crăciun în Europa</h2>
+        <p id="markerDetails"> </p>
         <p>
             <span class="outlined-text">Sortează</span> târgurile în funcție de perioada în care sunt deschise. 
             <span class="outlined-text">Click pe moș</span> pentru detalii. 
-            <p>
-                Informația este extrasă din 
-                <a href="https://www.thetimes.co.uk/travel/destinations/europe/best-christmas-markets-holidays" target="_blank">The Times</a>.
-            </p>
-        </p>
+        </p>   
+            
+        
         <div>
             <button onclick="toggleStatusMarkers('Toate')">Toate</button>
             <button onclick="toggleStatusMarkers('Deschis până la sfârșitul anului')">Deschis până la sfârșitul anului</button>
@@ -238,8 +248,13 @@ a:hover {
             
             <!-- Add more buttons as needed for different statuses -->
         </div>
-        <h2 id="markerTitle">Top târguri de Crăciun în Europa</h2>
-        <p id="markerDetails">Caută orașul și fă click pe hartă pentru detalii </p>
+
+        <p>
+            Informația este extrasă din 
+            <a href="https://www.thetimes.co.uk/travel/destinations/europe/best-christmas-markets-holidays" target="_blank">The Times</a>.
+        </p>
+
+        
         
         
     </div>
@@ -255,8 +270,8 @@ a:hover {
         
 
         var bounds = [
-            [-24.527134, 34.307144], // Southwest coordinates
-            [44.840290, 71.540724]  // Northeast coordinates
+            [-180, -85], // Southwest coordinates (further southwest)
+            [180, 85]  // Northeast coordinates (further northeast)
         ];
         mapboxgl.accessToken = 'pk.eyJ1IjoiZWQxOTkwIiwiYSI6ImNscWV3N3BqbDBxNXkyb21raHd1NjZ4OGwifQ.DT_g4Lk3k7vKZ49prSmVKA'; // Replace with your Mapbox access token
 
@@ -264,7 +279,7 @@ a:hover {
             container: 'map',
             style: 'mapbox://styles/ed1990/clqf29rn600h701pjdpvb1jct', // Replace with your preferred Mapbox style
             center: [11.821537518031588, 48.240017455307274], // Bucharest coordinates
-            zoom: 3,
+            zoom: 4,
             maxBounds: bounds // Set your initial zoom level
         });
 
@@ -278,7 +293,7 @@ a:hover {
                 "Oraș":"Cologne",
                 "Status":"Deschis până la sfârșitul anului",               
                 "Interval târg":"23 noiembrie - 23 decembrie, 2023",                
-                "Despre":"Cologne, renumit pentru piețele sale de Crăciun, are cel mai mare târg stabilit lângă catedrală. Markt der Engel încântă cu lumini și îngeri, iar Nikolausdorf îi bucură pe copii cu povestea Sfântului Nicolae. Se găsesc zone care spun legende cu tematică maritimă și personaje mitice. Turiștii sunt întâmpinați de decorațiuni și mii de luminițe."
+                "Despre":"Cologne este renumit pentru piețele sale de Crăciun. Cel mai mare târg îl are amplasat lângă catedrală. Markt der Engel încântă cu lumini și îngeri, iar Nikolausdorf îi bucură pe copii cu povestea Sfântului Nicolae. Aici găsești zone care spun povești cu tematică maritimă și personaje mitice. Turiștii sunt întâmpinați de decorațiuni și mii de luminițe."
                 }
             },
 
@@ -289,7 +304,7 @@ a:hover {
                 "Oraș":"Salzburg",
                 "Status":"Deschis până în ianuarie",                
                 "Interval târg":"23 noiembrie, 2023 - 1 ianuarie, 2024",                
-                "Despre":"Salzburg, orașul natal al lui Mozart și al filmului 'Sunetul muzicii', strălucește de Crăciun cu interpretări ale colindului 'Noapte de Vis' și târguri ce păstrează stilul secolului al 15-lea. Aici, calitatea primează, oferind produse autentice precum șosete tricotate manual. Sunt organizate concerte zilnice, gratuite, de la ora 17:00 în fața catedralei"
+                "Despre":"Salzburg, orașul natal al lui Mozart și al filmului 'Sunetul muzicii', strălucește de Crăciun cu interpretări ale colindului 'Noapte de Vis' și târguri ce păstrează stilul secolului al 15-lea. Aici, calitatea primează și găsești tot felul de produse tradiționale, autentice, precum șosete tricotate manual. Sunt organizate concerte zilnice, gratuite, de la ora 17:00, în fața catedralei."
                 }
             },
 
@@ -300,7 +315,7 @@ a:hover {
                 "Oraș":"Berlin",
                 "Status":"Deschis până în ianuarie",                
                 "Interval târg":"28 octombrie, 2023 - 1 ianuarie, 2024",                
-                "Despre":"Pentru o versiune modernă a tradiției, Berlinul artistic oferă arietate. Centrul orașului găzduiește aproximativ 80 de piețe de Crăciun (există chiar și una pentru câini). Pentru frumusețe, Weihnachtszauber din piața Gendarmenmarkt este cea mai pitorească, cu multe piese de artă și meșteșuguri. "
+                "Despre":"Pentru o versiune modernă a tradiției, Berlinul artistic oferă varietate. Centrul orașului găzduiește aproximativ 80 de piețe de Crăciun (există chiar și una pentru câini). Pentru frumusețe, Weihnachtszauber din piața Gendarmenmarkt este cea mai pitorească, cu multe piese de artă și meșteșuguri."
                 }
             },
 
@@ -311,7 +326,7 @@ a:hover {
                 "Oraș":"Budapesta",
                 "Status":"Deschis până în ianuarie",                
                 "Interval târg":"18 noiembrie, 2023 - 1 ianuarie, 2024",                
-                "Despre":"Budapesta aprinde atmosfera de Crăciun începând cu luna noiembrie cu două piețe de Crăciun: Piața Vorosmarty și Basilica. Piața Vorosmarty, situată în inima orașului, este cea mai veche piață de Crăciun din Budapesta, oferind standuri cu mâncare, magazine de meșteșuguri și concerte gratuite. Basilica include toate acestea, dar în plus oferă proiecții laser și un patinoar care înconjoară un brad de Crăciun impunător. "
+                "Despre":"Budapesta aprinde atmosfera de Crăciun începând cu luna noiembrie, cu două piețe de Crăciun: Piața Vorosmarty și Basilica. Piața Vorosmarty, situată în inima orașului, este cea mai veche piață de Crăciun din Budapesta, oferind standuri cu mâncare, magazine de meșteșuguri și concerte gratuite. Basilica include toate acestea, dar în plus oferă proiecții laser și un patinoar care înconjoară un brad de Crăciun impunător. "
                 }
             },
             {
@@ -321,7 +336,7 @@ a:hover {
                 "Oraș":"Praga",
                 "Status":"Deschis până în ianuarie",                
                 "Interval târg":"2 decembrie, 2023 - 6 ianuarie, 2024",                
-                "Despre":"Praga, cu farmecul său, este destinația ideală pentru sezonul de iarnă. Înlocuiește vinul fiert cu un pahar de grog – rom, apă, lămâie și zahăr. Decorul este desprins din povești: de o parte, turnurile gemene din secolul al 14-lea ale Bisericii Chrám Matky Boží před Týnem, de cealaltă parte, celebrul ceas astronomic din secolul al 15-lea al orașului. Între ele, o atmosferă strălucitoare de sărbătoare. Găsești cadouri, inclusiv globuri de sticlă suflate manual, iar pentru copii sunt pregătite surprize."
+                "Despre":"Praga, cu farmecul său, este destinația ideală pentru sezonul de iarnă. Înlocuiește vinul fiert cu un pahar de grog – rom, apă, lămâie și zahăr. Decorul este desprins din povești: de o parte, turnurile gemene din secolul al 14-lea ale Bisericii Chrám Matky Boží před Týnem, de cealaltă parte, celebrul ceas astronomic al orașului, din secolul al 15-lea. Între ele, o atmosferă strălucitoare de sărbătoare. Găsești cadouri, inclusiv globuri de sticlă suflate manual, iar pentru copii sunt pregătite surprize."
                 }
             },
             {
@@ -351,7 +366,7 @@ a:hover {
                 "Oraș":"Bratislava",
                 "Status":"Deschis până la sfârșitul anului",                
                 "Interval târg":"23 noiembrie - 23 decembrie, 2023",                
-                "Despre":"Crăciunul în capitala Slovaciei este un moment de minune copilărească. Luminițele împodobesc brazii de Crăciun, iar tarabele vând jucării tradiționale din lemn și decorațiuni frumoase. Delicii culinare includ clătite, cârnați și prăjituri."
+                "Despre":"Crăciunul în capitala Slovaciei este un moment de minune copilărească. Luminițele împodobesc brazii de Crăciun, iar tarabele vând jucării tradiționale din lemn și decorațiuni frumoase. Deliciile culinare includ clătite, cârnați și prăjituri."
                 }
             },
             {
@@ -371,7 +386,7 @@ a:hover {
                 "Oraș":"Copenhaga",
                 "Status":"Deschis până la sfârșitul anului",                
                 "Interval târg":"17 noiembrie - 31 decembrie, 2023",                
-                "Despre":"Piețele din Copenhaga vibrează de bucurie festivă, cu brazi de Crăciun, decorațiuni și lumini care adaugă o paletă colorată sezonului, alături de tarabe care vând jucării din lemn, ceramică, decorațiuni și îmbrăcăminte groasă tricotată. Centrul orașului găzduiește mai multe piețe, dar Piața de Crăciun din Grădinile Tivoli este inima Copenhagăi (alții susțin că Nyhavn este vedeta Crăciunului). O roată imensă se rotește în întunericul serii și luminițele sunt drapate pe copacii fără frunze, în timp ce un patinoar atrage aventuroșii. Adaugă aroma caldă a migdalelor caramelizate și parfumul vinului fiert cu scorțișoară (cunoscut local ca glogg) și te vei afla în mijlocul bucuriei piețelor de Crăciun."
+                "Despre":"Piețele din Copenhaga vibrează de bucurie festivă, cu brazi de Crăciun, decorațiuni și lumini care adaugă o paletă colorată sezonului, alături de tarabe care vând jucării din lemn, ceramică, decorațiuni și îmbrăcăminte groasă tricotată. Centrul orașului găzduiește mai multe piețe, dar Piața de Crăciun din Grădinile Tivoli este inima Copenhagăi (alții susțin că Nyhavn este vedeta Crăciunului). O roată imensă se rotește în întunericul serii și luminițele sunt drapate pe copacii fără frunze, în timp ce un patinoar îi poate atrage pe cei dornici de mișcare. Adaugă aroma caldă a migdalelor caramelizate și parfumul vinului fiert cu scorțișoară (cunoscut local ca glogg) și te vei afla în mijlocul bucuriei piețelor de Crăciun."
                 }
             },
             {
@@ -381,7 +396,7 @@ a:hover {
                 "Oraș":"Talinn",
                 "Status":"Deschis până în ianuarie",                
                 "Interval târg":"1 decembrie, 2023 - 7 ianuarie, 2024",                
-                "Despre":"Considerată una dintre cele mai bune piețe de Crăciun din Europa, oferta festivă din Tallinn se desfășoară în inima orașului medieval frumos. Piața Primăriei devine aglomerată iarna cu peste 60 de tarabe care vând decorațiuni și accesorii locale, dulciuri, miere și covoare de piele de oaie, precum și cu clopote și trupe de dans. Moș Crăciun întâmpină copiii cu sania sa autentică cu reni. Cel mai mare brad de Crăciun din Estonia este instalat în fața primăriei din 1441, fiind unul dintre primele expuse în Europa."
+                "Despre":"Considerată una dintre cele mai bune piețe de Crăciun din Europa, oferta festivă din Tallinn se desfășoară în inima orașului medieval frumos. Piața Primăriei devine aglomerată iarna, cu peste 60 de tarabe care vând decorațiuni și accesorii locale, dulciuri, miere și covoare de piele de oaie, precum și cu clopote și trupe de dans. Moș Crăciun întâmpină copiii cu sania sa autentică cu reni. Cel mai mare brad de Crăciun din Estonia este instalat în fața primăriei din 1441, fiind unul dintre primele expuse în Europa."
                 }
             },
             {
@@ -391,7 +406,7 @@ a:hover {
                 "Oraș":"Bruxelles",
                 "Status":"Deschis până la sfârșitul anului",                
                 "Interval târg":"24 noiembrie - 31 decembrie, 2023",                
-                "Despre":"Minunile Iernii din Bruxelles se întind pe Grand-Place, Bourse, Place Sainte-Catherine și Marché aux Poissons, cu patinoare, muzică și spectacole de lumini, un brad de Crăciun imens și un parcurs de peste un kilometru cu peste 200 de căsuțe din lemn acoperite de zăpadă, servind vafe calde, vin fiert și, bineînțeles, beri și ciocolată belgiană."
+                "Despre":"Minunile Iernii din Bruxelles se întind pe Grand-Place, Bourse, Place Sainte-Catherine și Marché aux Poissons, cu patinoare, muzică și spectacole de lumini, un brad de Crăciun imens și un parcurs de peste un kilometru, cu peste 200 de căsuțe din lemn, acoperite de zăpadă, servind vafe calde, vin fiert și, bineînțeles, beri și ciocolată belgiană."
                 }
             },
             {
@@ -401,7 +416,7 @@ a:hover {
                 "Oraș":"Basel",
                 "Status":"Deschis până la sfârșitul anului",                
                 "Interval târg":"23 noiembrie - 23 decembrie, 2023",                
-                "Despre":"Piața de Crăciun din Basel este cea mai mare și mai frumoasă din Elveția, cu 160 de tarabe meticulos decorate care vând o gamă largă de delicii culinare, de la cârnați impresionanți, Basel Lackerli (o variantă locală de turtă dulce), până la punch fierbinte, fondue festiv și raclette. Este împărțită în două secțiuni diferite la Barfuserplatz și Munsterplatz. Prima oferă jucării din lemn făcute manual, scene nașterii și bijuterii, în timp ce pădurea de basm de la Munsterplatz este plină de activități festive distractive pentru copii, de la ateliere de confecționat globuri până la decorarea turtelor dulci."
+                "Despre":"Piața de Crăciun din Basel este cea mai mare și mai frumoasă din Elveția, cu 160 de tarabe meticulos decorate, care vând o gamă largă de delicii culinare, de la cârnați impresionanți, Basel Lackerli (o variantă locală de turtă dulce), până la punch fierbinte, fondue festiv și raclette. Este împărțită în două secțiuni diferite la Barfuserplatz și Munsterplatz. Prima oferă jucării din lemn, făcute manual, scena nașterii și bijuterii, în timp ce pădurea de basm de la Munsterplatz este plină de activități festive distractive pentru copii, de la ateliere de confecționat globuri, până la decorarea turtelor dulci."
                 }
             },
             {
@@ -411,7 +426,7 @@ a:hover {
                 "Oraș":"Edinburgh",
                 "Status":"Deschis până în ianuarie",                
                 "Interval târg":"17 noiembrie, 2023 - 6 ianuarie, 2024",                
-                "Despre":"Edinburgh, indiscutabil unul dintre cele mai frumoase orașe, strălucește în lunile de iarnă. Găsești Peștera lui Moș Crăciun, un patinoar oval, călătorii cu caruselul, cum ar fi Star Flyer-ul înalt de 60m, un atelier al elfilor ascuns în Labirintul Pomului de Crăciun, tarabe care vând jucării din lemn, cadouri tematice Harry Potter și Irn Bru fiert; proiecții speciale, spectacole și lucrări de artă care prezintă talente locale. După lăsarea întunericului, mergi la Grădina Botanică Regală pentru a savura cidru condimentat și a admira luminile de Crăciun."
+                "Despre":"Edinburgh este indiscutabil unul dintre cele mai frumoase orașe ale Europei și strălucește în lunile de iarnă. Găsești Peștera lui Moș Crăciun, un patinoar oval, călătorii cu caruselul, cum ar fi Star Flyer-ul înalt de 60m, un atelier al elfilor ascuns în Labirintul Pomului de Crăciun, tarabe care vând jucării din lemn, cadouri tematice Harry Potter și Irn Bru fiert; proiecții speciale, spectacole și lucrări de artă care prezintă talente locale. După lăsarea întunericului, mergi la Grădina Botanică Regală pentru a savura cidru condimentat și a admira luminile de Crăciun."
                 }
             },
             {
@@ -431,7 +446,7 @@ a:hover {
                 "Oraș":"Metz",
                 "Status":"Deschis până la sfârșitul anului",                
                 "Interval târg":"24 noiembrie - 30 decembrie, 2023",                
-                "Despre":"Nimic nu te va aduce mai mult în spiritul sărbătorilor decât luminițele pieței de Crăciun din Metz. Patinoarul în aer liber și caruselul sunt atracții de neratat. Plimbă-te prin fermecătorul Sentiers des Lanternes și urmează calea elfilor și păpușilor . Fii atent la roata mare de lângă catedrală înainte de a te delecta cu unele dintre cele mai gustoase turte dulci din zonă."
+                "Despre":"Nimic nu te va aduce mai mult în spiritul sărbătorilor decât luminițele pieței de Crăciun din Metz. Patinoarul în aer liber și caruselul sunt atracții de neratat. Plimbă-te prin fermecătorul Sentiers des Lanternes și urmează calea elfilor și păpușilor. Fii atent la roata mare de lângă catedrală înainte de a te delecta cu unele dintre cele mai gustoase turte dulci din zonă."
                 }
             },
             {
@@ -452,7 +467,7 @@ a:hover {
                 "Oraș":"Nuremberg",
                 "Status":"Deschis până la sfârșitul anului",                
                 "Interval târg":"29 noiembrie - 24 decembrie, 2023",                
-                "Despre":"Când vine vorba de sustenabilitate, acest popular târg german este de neegalat. Toți comercianții de vin fiert lucrează cu un sistem de cupe reutilizabile care economisește energie și evită utilizarea unui număr mare de recipiente de unică folosință. De asemenea, piața este alimentată cu energie regenerabilă de la hidrocentrale regionale și centrale fotovoltaice."
+                "Despre":"Când vine vorba de sustenabilitate, acest popular târg german este de neegalat. Toți comercianții de vin fiert lucrează cu un sistem de căni reutilizabile care economisește energie și evită utilizarea unui număr mare de recipiente de unică folosință. De asemenea, piața este alimentată cu energie regenerabilă de la hidrocentrale regionale și centrale fotovoltaice."
                 }
             },
             {
@@ -462,7 +477,7 @@ a:hover {
                 "Oraș":"Sevilla",
                 "Status":"Deschis până în ianuarie",                
                 "Interval târg":"1 decembrie, 2023 - 5 ianuarie, 2024",                
-                "Despre":"Piața de Crăciun din Sevilla oferă o experiență artistică, culturală și distractivă pentru a-i aduce pe vizitatori în spiritul sărbătorilor. Te poți aștepta la tarabe din lemn decorate, expoziții stradale și spectacole. Vei găsi și scenete, coruri muzicale și multe dulciuri. Aprovizionează-te cu cadouri și suveniruri artistice andaluziene — și încălzește-ți mâinile reci cu o porție de churros."
+                "Despre":"Piața de Crăciun din Sevilla oferă o experiență artistică, culturală și distractivă pentru a-i aduce pe vizitatori în spiritul sărbătorilor. Te poți aștepta la tarabe din lemn decorate, expoziții stradale și spectacole. Vei găsi și scenete, coruri muzicale și multe dulciuri. Aprovizionează-te cu cadouri și suveniruri artistice andaluziene și încălzește-ți mâinile reci cu o porție de churros."
                 }
             },
             {
@@ -472,7 +487,7 @@ a:hover {
                 "Oraș":"Merano",
                 "Status":"Deschis până în ianuarie",                
                 "Interval târg":"24 noiembrie, 2023 - 6 ianuarie, 2024",                
-                "Despre":"În Alpii din nordul Italiei, cu un aspect mai austriac decât italian, se află frumosul oraș balnear Merano, al cărui târg de Crăciun, cu căsuțe strălucitoare, se întinde de-a lungul râului Passirio. Cu munți înzăpeziți în fundal, poți cumpăra produse tradiționale, cadouri, jucării și accesorii făcute manual, pe fundalul sonor al corurilor. Fă o plimbare de-a lungul râului, încălzindu-te cu vin fiert și prăjituri, precum și strudel cu mere."
+                "Despre":"În Alpii din nordul Italiei, cu un aspect mai degrabă austriac decât italian, se află frumosul oraș balnear Merano, al cărui târg de Crăciun, cu căsuțe strălucitoare, se întinde de-a lungul râului Passirio. Cu munți înzăpeziți în fundal, poți cumpăra produse tradiționale, cadouri, jucării și accesorii făcute manual, pe fundalul sonor al corurilor. Fă o plimbare de-a lungul râului, încălzindu-te cu vin fiert și prăjituri, precum și ștrudel cu mere."
                 }
             },
             {
@@ -482,7 +497,7 @@ a:hover {
                 "Oraș":"Zagreb",
                 "Status":"Deschis până în ianuarie",                
                 "Interval târg":"2 decembrie, 2023 - 7 ianuarie, 2024",                
-                "Despre":"Capitala Croației găzduiește unul dintre cele mai vesele târguri de Crăciun, cu zeci de piețe în tot orașul. Fiind în Croația, accentul este pus ferm pe mâncare și băutură, deși vei găsi și tarabe de meșteșuguri, precum și un patinoar uriaș în aer liber. Începe cu vizitarea piețelor înainte de a te alătura distracției din jurul principalei piețe, Ban Jelacic din Zagreb."
+                "Despre":"Capitala Croației găzduiește unul dintre cele mai vesele târguri de Crăciun, cu zeci de piețe în tot orașul. Accentul este pus ferm pe mâncare și băutură, deși vei găsi și tarabe de meșteșuguri, precum și un patinoar uriaș în aer liber. Începe cu vizitarea piețelor înainte de a te alătura distracției din jurul principalei piețe, Ban Jelacic din Zagreb."
                 }
             },
 
@@ -626,7 +641,7 @@ function searchAndNavigate(searchQuery) {
                 updatePanel(location);
                 map.flyTo({ 
                     center: location.coordinates,
-                    zoom: 3 // Adjust zoom level as needed
+                    zoom: 4 // Adjust zoom level as needed
                 });
                 document.getElementById('searchHints').innerHTML = '';
                 found = true;
