@@ -13,7 +13,7 @@ var config = {
     title: '<span style="font-family:sans; padding: 0.5vh; border-radius: 10px; color:#141414; font-size:1.6rem; background:#ffffff;" >Harta</span>',
     subtitle: '<span style=" font-family: Arial; color:#141414; font-size:2.4rem; background:#ffffff;" ></span>',
     byline: '<p><a href="" target="_blank"></a></p>',
-    footer: '<p style="margin-top:1px; margin-bottom:1px;"><b>2023 </b></p> <p style="margin-top:1px; margin-bottom:1px;"><b>Data source:</b> wikipedia.org, britannica.com, blackpast.org, data from the official websites of presidential administrations from multiple countries </p> <p><b>Note:</b> Afghanistan - Head of state`s year of birth is approximate, there is no clear data available. The presidency of Bosnia and Herzegovina is a three-member body, one Bosniak, one Serb, and one Croat. which collectively serves. Although the unsubdivided body is the collective head of state, one member is designated as Chairperson. The position of Chairperson rotates twice around the three members every eight months, with the candidate receiving the most votes overall becoming the first Chairperson over the four-year term.</p>',
+    footer: '<p style="margin-top:1px; margin-bottom:1px;"><b>2023 </b></p> <p style="margin-top:1px; margin-bottom:1px;"><b>Data source:</b> </p>',
     chapters: [
         {
             id: 'Methodology',

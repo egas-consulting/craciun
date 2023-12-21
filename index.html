@@ -11,6 +11,7 @@
     <script src="https://unpkg.com/scrollama"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -25,7 +26,7 @@
             width: 70%;
         }
         #panel {
-            font-family: 'Great Vibes', cursive;
+            font-family: 'Playfair Display', serif;
             font-size: 1.5rem;
             width: 30%; /* Define the panel width */
             background: linear-gradient(#17335C, #1A86C8); /* Transparent background */
@@ -79,7 +80,7 @@
                 position: fixed; /* Fixed position to stick atâthe bottom */
                 bottom: 0; /* Align to the bottom */
                 left: 0; /* Align to the left */
-                max-height: 40vh; 
+                max-height: 50vh; 
                 overflow-y: auto;/* Override right positioning for desktop */
                 padding: 5px; /* Less padding for very small screens */
             }
@@ -97,7 +98,7 @@
         }
             /* Custom marker style */
             .custom-marker {
-            width: 140px;
+            width: 80px;
             height: auto;
             background-image: url('marker.gif'); /* Reference the local image */
             background-size: cover;
@@ -192,8 +193,8 @@
         }
 
         #markerTitle {
-            font-family: 'Great Vibes', cursive;
-            font-size: 1.8rem; /* Adjust the size as needed */
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem; /* Adjust the size as needed */
         }
 
 /* Apply the Roboto font to #markerDetails */
@@ -222,22 +223,51 @@
         }
 
         #panel p:last-child {
-            padding-bottom: 70px;
+            padding-bottom: 180px;
+        }
+        #zoom-controls {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1000;
+    }
+
+        #zoom-controls button {
+            display: block;
+            margin-bottom: 5px;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
+        #zoom-controls button:hover {
+            background-color: #f0f0f0;
+        }
+
+        
     </style>
 </head>
 <body>
+    <div id="zoom-controls">
+        <button id="zoom-in">+</button>
+        <button id="zoom-out">-</button>
+    </div>
     
     <div id="map"></div>
+
+    
     <div id="panel">
         
         <!-- Descriptive text before the toggle buttons -->
-        <h2 id="markerTitle">Top târguri de Crăciun în Europa</h2>
+        <h2 id="markerTitle">Topul celor mai populare târguri de Crăciun pe care le poți vizita în Europa</h2>
+        <p id="additionalText">În pragul vacanței de iarnă, Panorama a centralizat principalele destinații de Crăciun, într-o hartă interactivă. Niciun loc nu prinde la un loc esența acestei sărbători mai bine ca un târg de Crăciun. Așa că, dacă alegeți să petreceți Crăciunul departe de casă, trebuie să știți că Europa se transformă într-un tărâm de poveste, cu piețe împodobite și pline de produse tradiționale. De la piața de Crăciun din Strasbourg, cunoscută drept „Capitala Crăciunului”, până la fermecătoarele târguri din Praga și Viena, fiecare colț de continent vibrează în ritmul sărbătorilor. <br> Nu lipsesc celebrele personaje de iarnă, de la Moș Crăciun până la spiriduși și alte figuri fantastice, care aduc bucurie și magie vizitatorilor de toate vârstele. Această hartă interactivă oferă nu doar un ghid vizual, ci și o fereastră spre tradițiile și obiceiurile care animă aceste locuri, în perioada Crăciunului.</p>
         <p id="markerDetails"> </p>
         <p>
             <span class="outlined-text">Sortează</span> târgurile în funcție de perioada în care sunt deschise. 
-            <span class="outlined-text">Click pe moș</span> pentru detalii. 
+            <span class="outlined-text">Zoom pe hartă și click pe moș</span> pentru detalii. 
         </p>   
             
         
@@ -251,7 +281,7 @@
 
         <p>
             Informația este extrasă din 
-            <a href="https://www.thetimes.co.uk/travel/destinations/europe/best-christmas-markets-holidays" target="_blank">The Times</a>.
+            <a href="https://www.thetimes.co.uk/travel/destinations/europe/best-christmas-markets-holidays" target="_blank">The Times</a> și <a href="https://www.hotnews.ro/stiri-administratie_locala-26692314-deschis-targul-craciun-craiova-craiasa-zapezii-dat-startul-magiei-sarbatori-fost-montata-cea-mai-mare-roata-panoramica-din-romania.htm" target="_blank">Hotnews</a>.
         </p>
 
         
@@ -501,6 +531,17 @@
                 }
             },
 
+            {
+                coordinates:  [ 23.7965614,44.3190159],
+                details: {
+                "Țară":"România",
+                "Oraș":"Craiova",
+                "Status":"Deschis până în ianuarie",                
+                "Interval târg":"17 noiembrie, 2023 - 2 ianuarie, 2024",                
+                "Despre":"Tema târgului de la Craiova este inspirată din Crăiasa Zăpezii. Culorile dominante sunt alb și turcoaz. Acesta se desfășoară în patru zone din municipiu: Centrul Vechi, Piața William Shakespeare, zona Doljana și Piața Mihai Viteazul. O roată panoramică impresionantă de 40 de metri a fost adusă din Olanda. Roata este cea mai înaltă din România, cu o capacitate de 140 de persoane"
+                }
+            },
+
             
             
                 
@@ -568,6 +609,8 @@ function initSlider() {
     });
 }
 
+
+
 function updatePanel(location) {
     // Change the title when a marker is clicked
     document.getElementById('markerTitle').textContent = 'Târgul de Crăciun';
@@ -581,6 +624,8 @@ function updatePanel(location) {
     document.getElementById('markerDetails').innerHTML = detailsHtml;
     initSlider();
 }
+
+
 
 // Function to add markers to the map
 function addMarkersToMap(locations) {
@@ -597,11 +642,23 @@ function addMarkersToMap(locations) {
             .setLngLat(coordinates)
             .addTo(map);
 
-        marker.getElement().addEventListener('click', () => updatePanel(location));
+        marker.getElement().addEventListener('click', () => {
+            onMarkerClick(); // Call your onMarkerClick function here
+            updatePanel(location);
+        });
 
         // Store the marker with its status
         allMarkers.push({ marker: marker, status: location.details["Status"] });
     });
+}
+
+function onMarkerClick() {
+    // Hide the additional text
+    var additionalText = document.getElementById('additionalText');
+    if (additionalText) {
+        additionalText.style.display = 'none';
+    }
+    // ... rest of your marker click handling code ...
 }
 
 // Function to dynamically update search hints based on user input
@@ -662,14 +719,20 @@ function toggleStatusMarkers(toggleStatus) {
         if (toggleStatus === "Toate") {
             element.style.display = 'block'; // Show all markers
         } else {
-            if (item.status === toggleStatus) {
-                element.style.display = 'block'; // Show markers with the selected status
-            } else {
-                element.style.display = 'none'; // Hide other markers
-            }
+            element.style.display = item.status === toggleStatus ? 'block' : 'none'; // Show or hide based on status
         }
     });
 }
+
+// Set up event listeners for zoom controls
+document.getElementById('zoom-in').addEventListener('click', function() {
+    map.zoomIn(); // for Mapbox GL JS
+});
+
+document.getElementById('zoom-out').addEventListener('click', function() {
+    map.zoomOut(); // for Mapbox GL JS
+});
+
 
 map.on('load', function() {
     map.loadImage('marker.gif', function(error, image) {
