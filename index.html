@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Târguri de Crăciun</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/mapbox/assembly/publisher-staging/src/svgs/mapbox.svg">
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v2.11.0/mapbox-gl.js"></script>
+    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.11.0/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/intersection-observer@0.12.0/intersection-observer.js"></script>
+    <script src="https://unpkg.com/scrollama"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: row;
+        }
+        #map {
+            height: 100vh;
+            width: 70%;
+        }
+        #panel {
+            font-family: 'Great Vibes', cursive;
+            font-size: 1.5rem;
+            width: 30%; /* Define the panel width */
+            background: linear-gradient(#17335C, #1A86C8); /* Transparent background */
+            overflow-y: auto;
+            max-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white /* Center content horizontally */
+            
+        }
+        /* Optional: Improve the scrollbar appearance */
+        #panel::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        
+        #panel::-webkit-scrollbar-thumb {
+            background: #888888fb;
+            border-radius: 10px;
+        }
+
+        #panel::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Media query for tablets */
+        @media (max-width: 768px) {
+            #panel {
+                width: 100%; /* Make the panel full width */
+                position: fixed; /* Fixed position to stick atâthe bottom */
+                bottom: 0; /* Align to the bottom */
+                left: 0; 
+                max-height: 50vh;/* Align to the left */
+                overflow-y: auto; /* Override right positioning for desktop */
+                padding: 10px; /* Adjust padding as needed for smaller screens */
+            }
+        }
+
+        /* Media query for mobile phones */
+        @media (max-width: 480px) {
+            #panel {
+                width: 100%; /* Full width for small screens */
+                position: fixed; /* Fixed position to stick atâthe bottom */
+                bottom: 0; /* Align to the bottom */
+                left: 0; /* Align to the left */
+                max-height: 70vh; 
+                overflow-y: auto;/* Override right positioning for desktop */
+                padding: 5px; /* Less padding for very small screens */
+            }
+        }       
+
+        /* Add a media query for screens smaller than 768px */
+        @media (max-width: 768px) {
+            #map {
+                width: 100%; /* Map takes full width on smaller screens */
+                 /* Hide the map on smaller screens */
+            }
+            #panel {
+                width: 100%; /* Panel takes full width on smaller screens */
+            }
+        }
+            /* Custom marker style */
+            .custom-marker {
+            width: 140px;
+            height: auto;
+            background-image: url('marker.gif'); /* Reference the local image */
+            background-size: cover;
+            cursor: pointer;
+            z-index: 1500;
+        }
+
+        #searchHints {
+            background-color: white;
+            border: 1px solid #ddd;
+            margin-top: 5px;
+        }
+
+        #searchHints li {
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        #searchHints li:hover {
+            background-color: #f0f0f0;
+        }
+
+        .legend-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        @keyframes walk {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100vw); }
+        }
+
+        #walking-gif {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: auto; /* Adjust as needed */
+            height: 150px; /* Adjust as needed */
+            animation: walk 10s linear infinite;
+            z-index: 1000;
+        }
+
+        #snowflakeContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999; /* Below the walking gif, but above other content */
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -50px; /* Start off-screen */
+            background: white;
+            opacity: 0.8;
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+        #decoration-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center; /* Center the trees */
+            z-index: 800; /* Make sure it's above most other elements */
+        }
+
+        .decorative-tree {
+            height: 200px; /* Adjust based on your image size */
+            margin: 0 0px; /* Spacing between trees */
+            vertical-align: bottom;
+        }
+
+        /* Media query for mobile devices */
+        @media (max-width: 768px) {
+            .decorative-tree {
+                height: 50px; /* Smaller size on mobile devices */
+                /* OR you can hide them completely using: display: none; */
+            }
+        }
+
+        #markerTitle {
+            font-family: 'Great Vibes', cursive;
+            font-size: 1.8rem; /* Adjust the size as needed */
+        }
+
+/* Apply the Roboto font to #markerDetails */
+        #markerDetails {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem; /* Adjust the size as needed */
+        }
+        p {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem; /* Apply Roboto font to the entire paragraph */
+        }
+
+        .outlined-text {
+            border: 1px solid red; /* Red outline */
+            padding: 3px;
+            font-weight: bold; /* Optional: add some padding around the text */
+        }
+
+        a {
+    color: #ff4d35; /* Example color; adjust as needed */
+    text-decoration: none; /* Removes the underline */
+}
+
+a:hover {
+    text-decoration: underline; /* Underline on hover for better user experience */
+}
+
+    </style>
+</head>
+<body>
+    
+    <div id="map"></div>
+    <div id="panel">
+        
+        <!-- Descriptive text before the toggle buttons -->
+        <p>
+            <span class="outlined-text">Sortează</span> târgurile în funcție de perioada în care sunt deschise. 
+            <span class="outlined-text">Click pe moș</span> pentru detalii. 
+            <p>
+                Informația este extrasă din 
+                <a href="https://www.thetimes.co.uk/travel/destinations/europe/best-christmas-markets-holidays" target="_blank">The Times</a>.
+            </p>
+        </p>
+        <div>
+            <button onclick="toggleStatusMarkers('Toate')">Toate</button>
+            <button onclick="toggleStatusMarkers('Deschis până la sfârșitul anului')">Deschis până la sfârșitul anului</button>
+            <button onclick="toggleStatusMarkers('Deschis până în ianuarie')">Deschis până în ianuarie</button>
+            
+            <!-- Add more buttons as needed for different statuses -->
+        </div>
+        <h2 id="markerTitle">Top târguri de Crăciun în Europa</h2>
+        <p id="markerDetails">Caută orașul și fă click pe hartă pentru detalii </p>
+        
+        
+    </div>
+    <img src="walking.gif" id="walking-gif"/>
+    <div id="snowflakeContainer"></div>
+    <div id="decoration-container">
+        <img src="trees.png" class="decorative-tree" />
+        
+        <!-- Add more trees or other decorations as needed -->
+    </div>
+
+    <script>
+        
+
+        var bounds = [
+            [-24.527134, 34.307144], // Southwest coordinates
+            [44.840290, 71.540724]  // Northeast coordinates
+        ];
+        mapboxgl.accessToken = 'pk.eyJ1IjoiZWQxOTkwIiwiYSI6ImNscWV3N3BqbDBxNXkyb21raHd1NjZ4OGwifQ.DT_g4Lk3k7vKZ49prSmVKA'; // Replace with your Mapbox access token
+
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/ed1990/clqf29rn600h701pjdpvb1jct', // Replace with your preferred Mapbox style
+            center: [11.821537518031588, 48.240017455307274], // Bucharest coordinates
+            zoom: 3,
+            maxBounds: bounds // Set your initial zoom level
+        });
+
+        // Create markers for multiple locations
+        const locations = [
+                
+                {
+                coordinates:  [ 6.959974,50.938361 ],
+                details: {
+                "Țară":"Germania",
+                "Oraș":"Cologne",
+                "Status":"Deschis până la sfârșitul anului",               
+                "Interval târg":"23 noiembrie - 23 decembrie, 2023",                
+                "Despre":"Cologne, renumit pentru piețele sale de Crăciun, are cel mai mare târg stabilit lângă catedrală. Markt der Engel încântă cu lumini și îngeri, iar Nikolausdorf îi bucură pe copii cu povestea Sfântului Nicolae. Se găsesc zone care spun legende cu tematică maritimă și personaje mitice. Turiștii sunt întâmpinați de decorațiuni și mii de luminițe."
+                }
+            },
+
+            {
+                coordinates:  [ 13.0464806,47.7981346 ],
+                details: {
+                "Țară":"Austria",
+                "Oraș":"Salzburg",
+                "Status":"Deschis până în ianuarie",                
+                "Interval târg":"23 noiembrie, 2023 - 1 ianuarie, 2024",                
+                "Despre":"Salzburg, orașul natal al lui Mozart și al filmului 'Sunetul muzicii', strălucește de Crăciun cu interpretări ale colindului 'Noapte de Vis' și târguri ce păstrează stilul secolului al 15-lea. Aici, calitatea primează, oferind produse autentice precum șosete tricotate manual. Sunt organizate concerte zilnice, gratuite, de la ora 17:00 în fața catedralei"
+                }
+            },
+
+            {
+                coordinates:  [ 13.3888599,52.5170365 ],
+                details: {
+                "Țară":"Germania",
+                "Oraș":"Berlin",
+                "Status":"Deschis până în ianuarie",                
+                "Interval târg":"28 octombrie, 2023 - 1 ianuarie, 2024",                
+                "Despre":"Pentru o versiune modernă a tradiției, Berlinul artistic oferă arietate. Centrul orașului găzduiește aproximativ 80 de piețe de Crăciun (există chiar și una pentru câini). Pentru frumusețe, Weihnachtszauber din piața Gendarmenmarkt este cea mai pitorească, cu multe piese de artă și meșteșuguri. "
+                }
+            },
+
+            {
+                coordinates:  [ 19.0401609,47.4978918 ],
+                details: {
+                "Țară":"Ungaria",
+                "Oraș":"Budapesta",
+                "Status":"Deschis până în ianuarie",                
+                "Interval târg":"18 noiembrie, 2023 - 1 ianuarie, 2024",                
+                "Despre":"Budapesta aprinde atmosfera de Crăciun începând cu luna noiembrie cu două piețe de Crăciun: Piața Vorosmarty și Basilica. Piața Vorosmarty, situată în inima orașului, este cea mai veche piață de Crăciun din Budapesta, oferind standuri cu mâncare, magazine de meșteșuguri și concerte gratuite. Basilica include toate acestea, dar în plus oferă proiecții laser și un patinoar care înconjoară un brad de Crăciun impunător. "
+                }
+            },
+            {
+                coordinates:  [ 14.4212535,50.0874654 ],
+                details: {
+                "Țară":"Cehia",
+                "Oraș":"Praga",
+                "Status":"Deschis până în ianuarie",                
+                "Interval târg":"2 decembrie, 2023 - 6 ianuarie, 2024",                
+                "Despre":"Praga, cu farmecul său, este destinația ideală pentru sezonul de iarnă. Înlocuiește vinul fiert cu un pahar de grog – rom, apă, lămâie și zahăr. Decorul este desprins din povești: de o parte, turnurile gemene din secolul al 14-lea ale Bisericii Chrám Matky Boží před Týnem, de cealaltă parte, celebrul ceas astronomic din secolul al 15-lea al orașului. Între ele, o atmosferă strălucitoare de sărbătoare. Găsești cadouri, inclusiv globuri de sticlă suflate manual, iar pentru copii sunt pregătite surprize."
+                }
+            },
+            {
+                coordinates:  [ 7.7507127 ,48.584614 ],
+                details: {
+                "Țară":"Franța",
+                "Oraș":"Strasbourg",
+                "Status":"Deschis până la sfârșitul anului",                
+                "Interval târg":"24 noiembrie - 24 decembrie, 2023",                
+                "Despre":"Descoperă 300 de standuri tradiționale în piețele centrale ale orașului, cu decorațiuni de Crăciun din lemn pictat manual. Vizitează Piața Producătorilor din Alsacia pentru cârnați și kugelhopf, cozonac cu migdale și fructe."
+                }
+            },
+            {
+                coordinates:  [ 11.9670171 ,57.7072326 ],
+                details: {
+                "Țară":"Suedia",
+                "Oraș":"Gothenburg",
+                "Status":"Deschis până la sfârșitul anului",                
+                "Interval târg":"19 noiembrie - 30 decembrie, 2023",                
+                "Despre":"Liseberg, cel mai popular parc de distracții din Suedia, se transformă într-unul dintre cele mai elegante piețe de Crăciun în aer liber din lume. Intrarea este contra cost, dar poți rămâne până târziu (este deschis între 15:00 și 22:00 în majoritatea zilelor), pentru a savura produsele tradiționale - ren afumat și glogg (vin fiert scandinav). Vizitează-l pe Moș Crăciun în atelierul său din lemn și nu rata spectacolul de gheață."
+                }
+            },
+            {
+                coordinates:  [ 17.1093063 ,48.1516988 ],
+                details: {
+                "Țară":"Slovacia",
+                "Oraș":"Bratislava",
+                "Status":"Deschis până la sfârșitul anului",                
+                "Interval târg":"23 noiembrie - 23 decembrie, 2023",                
+                "Despre":"Crăciunul în capitala Slovaciei este un moment de minune copilărească. Luminițele împodobesc brazii de Crăciun, iar tarabele vând jucării tradiționale din lemn și decorațiuni frumoase. Delicii culinare includ clătite, cârnați și prăjituri."
+                }
+            },
+            {
+                coordinates:  [ 16.3725042,48.2083537 ],
+                details: {
+                "Țară":"Austria",
+                "Oraș":"Viena",
+                "Status":"Deschis până în ianuarie",                
+                "Interval târg":"11 noiembrie, 2023 - 4 ianuarie, 2024",                
+                "Despre":"În perioada Crăciunului, Viena strălucește cu luminițe. Adaugă băuturi aburinde în cafenele primitoare și ai un oraș plin de atmosferă festivă. Numeroase piețe de Crăciun se întind pe străduțele vechiului oraș, oferind standuri cu jucării tradiționale din lemn și bunuri artizanale, cum ar fi săpunuri făcute manual. Atmosfera rece este încălzită de aroma revigorantă a castanelor coapte și a covrigilor proaspăt făcuți."
+                }
+            },
+            {
+                coordinates:  [ 12.5700724 ,55.6867243 ],
+                details: {
+                "Țară":"Danemarca",
+                "Oraș":"Copenhaga",
+                "Status":"Deschis până la sfârșitul anului",                
+                "Interval târg":"17 noiembrie - 31 decembrie, 2023",                
+                "Despre":"Piețele din Copenhaga vibrează de bucurie festivă, cu brazi de Crăciun, decorațiuni și lumini care adaugă o paletă colorată sezonului, alături de tarabe care vând jucării din lemn, ceramică, decorațiuni și îmbrăcăminte groasă tricotată. Centrul orașului găzduiește mai multe piețe, dar Piața de Crăciun din Grădinile Tivoli este inima Copenhagăi (alții susțin că Nyhavn este vedeta Crăciunului). O roată imensă se rotește în întunericul serii și luminițele sunt drapate pe copacii fără frunze, în timp ce un patinoar atrage aventuroșii. Adaugă aroma caldă a migdalelor caramelizate și parfumul vinului fiert cu scorțișoară (cunoscut local ca glogg) și te vei afla în mijlocul bucuriei piețelor de Crăciun."
+                }
+            },
+            {
+                coordinates:  [ 24.7453688,59.4372155 ],
+                details: {
+                "Țară":"Estonia",
+                "Oraș":"Talinn",
+                "Status":"Deschis până în ianuarie",                
+                "Interval târg":"1 decembrie, 2023 - 7 ianuarie, 2024",                
+                "Despre":"Considerată una dintre cele mai bune piețe de Crăciun din Europa, oferta festivă din Tallinn se desfășoară în inima orașului medieval frumos. Piața Primăriei devine aglomerată iarna cu peste 60 de tarabe care vând decorațiuni și accesorii locale, dulciuri, miere și covoare de piele de oaie, precum și cu clopote și trupe de dans. Moș Crăciun întâmpină copiii cu sania sa autentică cu reni. Cel mai mare brad de Crăciun din Estonia este instalat în fața primăriei din 1441, fiind unul dintre primele expuse în Europa."
+                }
+            },
+            {
+                coordinates:  [ 4.351697 ,50.8465573],
+                details: {
+                "Țară":"Belgia",
+                "Oraș":"Bruxelles",
+                "Status":"Deschis până la sfârșitul anului",                
+                "Interval târg":"24 noiembrie - 31 decembrie, 2023",                
+                "Despre":"Minunile Iernii din Bruxelles se întind pe Grand-Place, Bourse, Place Sainte-Catherine și Marché aux Poissons, cu patinoare, muzică și spectacole de lumini, un brad de Crăciun imens și un parcurs de peste un kilometru cu peste 200 de căsuțe din lemn acoperite de zăpadă, servind vafe calde, vin fiert și, bineînțeles, beri și ciocolată belgiană."
+                }
+            },
+            {
+                coordinates:  [ 7.5878261 ,47.5581077],
+                details: {
+                "Țară":"Elveția",
+                "Oraș":"Basel",
+                "Status":"Deschis până la sfârșitul anului",                
+                "Interval târg":"23 noiembrie - 23 decembrie, 2023",                
+                "Despre":"Piața de Crăciun din Basel este cea mai mare și mai frumoasă din Elveția, cu 160 de tarabe meticulos decorate care vând o gamă largă de delicii culinare, de la cârnați impresionanți, Basel Lackerli (o variantă locală de turtă dulce), până la punch fierbinte, fondue festiv și raclette. Este împărțită în două secțiuni diferite la Barfuserplatz și Munsterplatz. Prima oferă jucării din lemn făcute manual, scene nașterii și bijuterii, în timp ce pădurea de basm de la Munsterplatz este plină de activități festive distractive pentru copii, de la ateliere de confecționat globuri până la decorarea turtelor dulci."
+                }
+            },
+            {
+                coordinates:  [ -3.1883749,55.9533456 ],
+                details: {
+                "Țară":"Scoția, UK",
+                "Oraș":"Edinburgh",
+                "Status":"Deschis până în ianuarie",                
+                "Interval târg":"17 noiembrie, 2023 - 6 ianuarie, 2024",                
+                "Despre":"Edinburgh, indiscutabil unul dintre cele mai frumoase orașe, strălucește în lunile de iarnă. Găsești Peștera lui Moș Crăciun, un patinoar oval, călătorii cu caruselul, cum ar fi Star Flyer-ul înalt de 60m, un atelier al elfilor ascuns în Labirintul Pomului de Crăciun, tarabe care vând jucării din lemn, cadouri tematice Harry Potter și Irn Bru fiert; proiecții speciale, spectacole și lucrări de artă care prezintă talente locale. După lăsarea întunericului, mergi la Grădina Botanică Regală pentru a savura cidru condimentat și a admira luminile de Crăciun."
+                }
+            },
+            {
+                coordinates:  [ 18.6129821 ,54.3706858],
+                details: {
+                "Țară":"Polonia",
+                "Oraș":"Gdansk",
+                "Status":"Deschis până la sfârșitul anului",                
+                "Interval târg":"2 decembrie - 23 decembrie, 2023",                
+                "Despre":"În centrul istoric al orașului, piața de Crăciun din Gdansk este o țară a minunilor de iarnă, cu romantism emanând din fiecare colț — există chiar un loc amenajat pentru ca îndrăgostiții să se sărute sub vâsc. Te poți aștepta la parade de elfi, un elan vorbitor, Crăiasa Zăpezii și corul ei de colindători. Bucură-te de o plimbare cu caruselul de basm. Cumpără bijuterii originale, ceramică și haine reciclate, cum ar fi pălării și tricotaje, sau savurează varietatea largă de delicii din întreaga lume, inclusiv bucătăria tradițională poloneză (încearcă pierogi)."
+                }
+            },
+            {
+                coordinates:  [ 6.1763552 ,49.1196964],
+                details: {
+                "Țară":"Franța",
+                "Oraș":"Metz",
+                "Status":"Deschis până la sfârșitul anului",                
+                "Interval târg":"24 noiembrie - 30 decembrie, 2023",                
+                "Despre":"Nimic nu te va aduce mai mult în spiritul sărbătorilor decât luminițele pieței de Crăciun din Metz. Patinoarul în aer liber și caruselul sunt atracții de neratat. Plimbă-te prin fermecătorul Sentiers des Lanternes și urmează calea elfilor și păpușilor . Fii atent la roata mare de lângă catedrală înainte de a te delecta cu unele dintre cele mai gustoase turte dulci din zonă."
+                }
+            },
+            {
+                coordinates:  [19.9368564 ,50.0619474],
+                details: {
+                "Țară":"Polonia",
+                "Oraș":"Cracovia",
+                "Status":"Deschis până la sfârșitul anului",                
+                "Interval târg":"24 noiembrie - 26 decembrie, 2023",                
+                "Despre":"Cracovia are multe de oferit. Te poți bucura de patinaj într-o piață înzăpezită, te poți încălzi cu vin fiert și turtă dulce și poți experimenta momente speciale în galerii liniștite și biserici luminate. Începe în cețosul Rynek Glowny, cea mai mare piață medievală din Europa, inhalând aromele de kielbasa (cârnați) de la tarabele de Crăciun."
+                }
+            },
+
+            {
+                coordinates:  [11.077298 ,49.453872],
+                details: {
+                "Țară":"Germania",
+                "Oraș":"Nuremberg",
+                "Status":"Deschis până la sfârșitul anului",                
+                "Interval târg":"29 noiembrie - 24 decembrie, 2023",                
+                "Despre":"Când vine vorba de sustenabilitate, acest popular târg german este de neegalat. Toți comercianții de vin fiert lucrează cu un sistem de cupe reutilizabile care economisește energie și evită utilizarea unui număr mare de recipiente de unică folosință. De asemenea, piața este alimentată cu energie regenerabilă de la hidrocentrale regionale și centrale fotovoltaice."
+                }
+            },
+            {
+                coordinates:  [ -5.9953403,37.3886303 ],
+                details: {
+                "Țară":"Spania",
+                "Oraș":"Sevilla",
+                "Status":"Deschis până în ianuarie",                
+                "Interval târg":"1 decembrie, 2023 - 5 ianuarie, 2024",                
+                "Despre":"Piața de Crăciun din Sevilla oferă o experiență artistică, culturală și distractivă pentru a-i aduce pe vizitatori în spiritul sărbătorilor. Te poți aștepta la tarabe din lemn decorate, expoziții stradale și spectacole. Vei găsi și scenete, coruri muzicale și multe dulciuri. Aprovizionează-te cu cadouri și suveniruri artistice andaluziene — și încălzește-ți mâinile reci cu o porție de churros."
+                }
+            },
+            {
+                coordinates:  [ 11.1594185,46.6695547 ],
+                details: {
+                "Țară":"Italia",
+                "Oraș":"Merano",
+                "Status":"Deschis până în ianuarie",                
+                "Interval târg":"24 noiembrie, 2023 - 6 ianuarie, 2024",                
+                "Despre":"În Alpii din nordul Italiei, cu un aspect mai austriac decât italian, se află frumosul oraș balnear Merano, al cărui târg de Crăciun, cu căsuțe strălucitoare, se întinde de-a lungul râului Passirio. Cu munți înzăpeziți în fundal, poți cumpăra produse tradiționale, cadouri, jucării și accesorii făcute manual, pe fundalul sonor al corurilor. Fă o plimbare de-a lungul râului, încălzindu-te cu vin fiert și prăjituri, precum și strudel cu mere."
+                }
+            },
+            {
+                coordinates:  [ 15.9622315,45.8426414 ],
+                details: {
+                "Țară":"Croația",
+                "Oraș":"Zagreb",
+                "Status":"Deschis până în ianuarie",                
+                "Interval târg":"2 decembrie, 2023 - 7 ianuarie, 2024",                
+                "Despre":"Capitala Croației găzduiește unul dintre cele mai vesele târguri de Crăciun, cu zeci de piețe în tot orașul. Fiind în Croația, accentul este pus ferm pe mâncare și băutură, deși vei găsi și tarabe de meșteșuguri, precum și un patinoar uriaș în aer liber. Începe cu vizitarea piețelor înainte de a te alătura distracției din jurul principalei piețe, Ban Jelacic din Zagreb."
+                }
+            },
+
+            
+            
+                
+]
+
+function createSnowflake() {
+        const snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        snowflake.style.left = Math.random() * window.innerWidth + 'px';
+        snowflake.style.animationName = 'fall';
+        snowflake.style.animationDuration = Math.random() * 3 + 2 + 's'; // Duration
+        snowflake.style.animationTimingFunction = 'linear';
+        snowflake.style.animationIterationCount = 'infinite';
+
+        document.getElementById('snowflakeContainer').appendChild(snowflake);
+
+        // Remove the snowflake after it falls off the screen
+        setTimeout(() => {
+            snowflake.remove();
+        }, (Math.random() * 3 + 2) * 1000); // Match the duration
+    }
+
+    setInterval(createSnowflake, 200);
+// Global variable to keep track of all markers
+var allMarkers = [];
+
+
+
+// Function to adjust overlapping markers
+function adjustOverlappingMarkers(locations) {
+    const locationCount = {};
+    const offsetAmount = 0.0001; // Small offset
+
+    locations.forEach((location, index) => {
+        const coordKey = location.coordinates.join(',');
+
+        if (!locationCount[coordKey]) {
+            locationCount[coordKey] = 0;
+        } else {
+            locationCount[coordKey]++;
+            locations[index].coordinates = offsetCoordinates(location.coordinates, locationCount[coordKey], offsetAmount);
+        }
+    });
+}
+
+function initSlider() {
+    var sliders = document.querySelectorAll('.image-slider');
+    sliders.forEach(slider => {
+        var slides = slider.querySelectorAll('.slide');
+        var currentSlide = 0;
+
+        function goToSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+
+        slider.querySelector('.prev').addEventListener('click', function() {
+            goToSlide(currentSlide - 1);
+        });
+
+        slider.querySelector('.next').addEventListener('click', function() {
+            goToSlide(currentSlide + 1);
+        });
+    });
+}
+
+function updatePanel(location) {
+    // Change the title when a marker is clicked
+    document.getElementById('markerTitle').textContent = 'Târgul de Crăciun';
+
+    var detailsHtml = '';
+    Object.keys(location.details).forEach(key => {
+        detailsHtml += '<strong>' + key + ':</strong> ' + location.details[key] + '<br>';
+    });
+    detailsHtml += '</div>';
+
+    document.getElementById('markerDetails').innerHTML = detailsHtml;
+    initSlider();
+}
+
+// Function to add markers to the map
+function addMarkersToMap(locations) {
+    allMarkers = []; // Reset the markers array
+
+    locations.forEach(location => {
+        const coordinates = location.coordinates;
+
+        var img = new Image(80, 80); // Set the size of your custom marker to 80x80 pixels
+        img.src = 'marker.gif'; // Local path to your custom marker image
+        img.className = 'custom-marker'; // You can use this to style your marker with CSS if needed
+
+        var marker = new mapboxgl.Marker(img)
+            .setLngLat(coordinates)
+            .addTo(map);
+
+        marker.getElement().addEventListener('click', () => updatePanel(location));
+
+        // Store the marker with its status
+        allMarkers.push({ marker: marker, status: location.details["Status"] });
+    });
+}
+
+// Function to dynamically update search hints based on user input
+function updateSearchHints() {
+    var query = document.getElementById('searchInput').value.toLowerCase();
+    var hints = document.getElementById('searchHints');
+    hints.innerHTML = '';
+
+    if (query.length > 2) {
+        locations.forEach(location => {
+            const status = location.details["Status"] ? location.details["Status"].toLowerCase() : '';
+            const localitate = location.details["Localitate"] ? location.details["Localitate"].toLowerCase() : '';
+            const unitateInvatamant = location.details["Unitatea de învățământ a victimei"] ? location.details["Unitatea de învățământ a victimei"].toLowerCase() : '';
+
+            if (status.includes(query) || localitate.includes(query) || unitateInvatamant.includes(query)) {
+                var li = document.createElement('li');
+                li.textContent = `${localitate}, ${status}, ${unitateInvatamant}`; // Display a combination of the details
+                li.onclick = function () {
+                    searchAndNavigate(localitate, status, unitateInvatamant);
+                    document.getElementById('searchInput').value = `${localitate}, ${status}, ${unitateInvatamant}`;
+                };
+                hints.appendChild(li);
+            }
+        });
+    }
+}
+
+function searchAndNavigate(searchQuery) {
+    let found = false;
+    locations.forEach(location => {
+        const detailKeys = Object.keys(location.details);
+
+        for (let key of detailKeys) {
+            const detailValue = location.details[key] ? location.details[key].toLowerCase() : '';
+
+            if (detailValue.includes(searchQuery.toLowerCase())) {
+                updatePanel(location);
+                map.flyTo({ 
+                    center: location.coordinates,
+                    zoom: 3 // Adjust zoom level as needed
+                });
+                document.getElementById('searchHints').innerHTML = '';
+                found = true;
+                break; // Break after finding the first match
+            }
+        }
+    });
+
+    if (!found) {
+        alert("Location not found");
+    }
+}
+
+// Function to toggle markers based on status
+function toggleStatusMarkers(toggleStatus) {
+    allMarkers.forEach(item => {
+        var element = item.marker.getElement();
+        if (toggleStatus === "Toate") {
+            element.style.display = 'block'; // Show all markers
+        } else {
+            if (item.status === toggleStatus) {
+                element.style.display = 'block'; // Show markers with the selected status
+            } else {
+                element.style.display = 'none'; // Hide other markers
+            }
+        }
+    });
+}
+
+map.on('load', function() {
+    map.loadImage('marker.gif', function(error, image) {
+        if (error) throw error;
+        map.addImage('custom-marker', image);
+        addMarkersToMap(locations);
+    });
+});
+
+
+
+
+    </script>
+</body>
+</html>
