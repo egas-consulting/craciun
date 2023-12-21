@@ -42,18 +42,22 @@
         }
         /* Improve the scrollbar appearance */
         #panel::-webkit-scrollbar {
-            width: 20px;
+            width: 25px;
         }
 
         
         #panel::-webkit-scrollbar-track {
-            background: #f0f0f0; /* Light background for the scrollbar track */
+            background: #f0f0f0;
+            background: #f0f0f0;
+            -webkit-border-radius: 10px;
+            border-radius: 10px; /* Light background for the scrollbar track */
         }
 
         #panel::-webkit-scrollbar-thumb {
-            background-color: #17335C; /* Darker color for the scrollbar thumb */
+            background-color: #17335C;
+            -webkit-border-radius: 10px;
             border-radius: 10px;
-            border: 3px solid #f0f0f0; /* Add border for better visibility */
+            border: 3px solid #f0f0f0;/* Add border for better visibility */
         }
 
         #panel::-webkit-scrollbar-thumb:hover {
@@ -307,7 +311,7 @@
 
         var map = new mapboxgl.Map({
             container: 'map',
-            style: 'mapbox://styles/ed1990/clqf29rn600h701pjdpvb1jct', // Replace with your preferred Mapbox style
+            style: 'mapbox://styles/ed1990/clqfeer3m00i001qu1ue45gqv', // Replace with your preferred Mapbox style
             center: [11.821537518031588, 48.240017455307274], // Bucharest coordinates
             zoom: 4,
             maxBounds: bounds // Set your initial zoom level

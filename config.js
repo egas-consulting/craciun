@@ -1,5 +1,5 @@
 var config = {
-    style: 'mapbox://styles/ed1990/clqf29rn600h701pjdpvb1jct',
+    style: 'mapbox://styles/ed1990/clqfeer3m00i001qu1ue45gqv',
     accessToken: 'pk.eyJ1IjoiZWQxOTkwIiwiYSI6ImNscWV3N3BqbDBxNXkyb21raHd1NjZ4OGwifQ.DT_g4Lk3k7vKZ49prSmVKA',
     showMarkers: false,
     markerColor: '#3FB1CE',
@@ -13,7 +13,7 @@ var config = {
     title: '<span style="font-family:sans; padding: 0.5vh; border-radius: 10px; color:#141414; font-size:1.6rem; background:#ffffff;" >Harta</span>',
     subtitle: '<span style=" font-family: Arial; color:#141414; font-size:2.4rem; background:#ffffff;" ></span>',
     byline: '<p><a href="" target="_blank"></a></p>',
-    footer: '<p style="margin-top:1px; margin-bottom:1px;"><b>2023 </b></p> <p style="margin-top:1px; margin-bottom:1px;"><b>Data source:</b> </p>',
+    footer: '<p style="margin-top:1px; margin-bottom:1px;"><b>2023 </b></p> <p style="margin-top:1px; margin-bottom:1px;"><b>Data source:</b> wikipedia.org, </p>',
     chapters: [
         {
             id: 'Methodology',
